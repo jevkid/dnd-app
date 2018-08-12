@@ -8,6 +8,7 @@ import Button from './components/Button';
 import RollDice from './Dice/RollDice';
 import Explore from './Explore/Explore';
 import Randomise from './Randomise/Randomise';
+import Test from './Test/Test';
 
 type Props = {};
 
@@ -40,7 +41,7 @@ class HomeScreen extends Component<Props> {
           <Button title="Roll Die" id="roll" disabled={false} handlePress={() => navigate('RollDice')}/>
           <Button title="Explore" id="explore" disabled={false} handlePress={() => navigate('Explore')}/>
           <Button title="Randomise" id="random" disabled={false} handlePress={() => navigate('Randomise')}/>
-          {/* <Button title="Build" id="build" disabled={false} handlePress={() => navigate('Build')}/> */}
+          <Button title="Test" id="test" disabled={false} handlePress={() => navigate('Test')}/>
         </View>
       </View>
     );
@@ -59,6 +60,9 @@ const RootStack = createStackNavigator({
   },
   Randomise: {
     screen: Randomise
+  },
+  Test: {
+    screen: Test
   }
 });
 

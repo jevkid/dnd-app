@@ -5,7 +5,7 @@
 
 # dependencies
 /node_modules
-
+.DS_STORE
 # misc
 .env.local
 .env.development.local
