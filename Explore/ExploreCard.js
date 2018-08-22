@@ -1,37 +1,69 @@
 import React, { Component } from 'react';
 import { Font } from 'expo';
 import PropTypes from 'prop-types';
-import { Platform, StyleSheet, Text, View, TouchableNativeFeedback, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { Platform, StyleSheet, Text, View, TouchableNativeFeedback, TouchableOpacity, FlatList, ScrollView, Image } from 'react-native';
 
-import Button from './Button';
+import Button from '../components/Button';
+import classes from '../components/classes';
 
-export default class SelectedModal extends React.Component {
+class ExploreCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      fontLoaded: false
+      isLoading: true,
+      fontLoaded: false,
+      image: ''
     }
   }
+
   async componentDidMount() {
     try {
       await Font.loadAsync({
-        'LibreBaskerville-Regular': require('../assets/fonts/LibreBaskerville-Regular.otf'),
-        'DnDC': require('../assets/fonts/DnDC.ttf')
+        'LibreBaskerville-Regular': require('../assets/fonts/LibreBaskerville-Regular.otf')
       });
       this.setState({ fontLoaded: true });
     } catch (error) {
       console.log(error);
     }
+    this.fetchResultData();
   }
+
+  fetchResultData(){
+    let props = this.props.navigation.state.params
+    let url = props.value;
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        this.setState({result: data, isLoading: false});
+      });
+  }
+
   render() {
-    let data = this.props.data;
+    let props = this.props.navigation.state.params;
+    let data = this.state.result;
+    let imageUrl;
     const Touchable = Platform.OS === 'android' ? TouchableNativeFeedback : TouchableOpacity;
     const font = Platform.OS === 'android' ? 'notoserif' : 'Avenir';
     const fontFam = this.state.fontLoaded ? 'LibreBaskerville-Regular' : font;
+    if(!this.state.isLoading && props && data){
+      imageUrl = classes[data.name].url;
+    }
+    if(this.state.isLoading){
+      return (
+        <View style={styles.container}>
+          {this.state.fontLoaded &&
+            <Text style={{fontSize: 52, color: '#263238', fontFamily: 'DnDC', textAlign: 'center'}}>Loading...</Text>
+          }
+        </View>
+      )
+    }
     return (
-      <View style={styles.overlay}>
         <View style={styles.container}>
           <ScrollView>
+            <Image
+              style={{height: 250, width: 250, position: 'relative', alignContent: 'center'}}
+              source={imageUrl}
+            />
             <Text style={[styles.headerText, {fontFamily: fontFam, marginTop: 10}]}>{data.name}</Text>
             {data.equipment_category && this.state.fontLoaded &&
               <Text style={[styles.paragraph, {fontFamily: fontFam, marginTop: 10}]}>{data.equipment_category}</Text>
@@ -66,15 +98,11 @@ export default class SelectedModal extends React.Component {
             }
           </ScrollView>
         </View>
-        <TouchableOpacity onPress={this.props.closeModal}>
-          <Text>Close</Text>
-        </TouchableOpacity>
-      </View>
     );
   }
 }
 
-SelectedModal.propTypes = {
+ExploreCard.propTypes = {
   selectedType: PropTypes.string,
   data: PropTypes.object,
   closeModal: PropTypes.func
@@ -121,3 +149,5 @@ const styles = StyleSheet.create({
   }
 
 });
+
+export default ExploreCard;

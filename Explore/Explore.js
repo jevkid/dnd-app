@@ -5,7 +5,6 @@ import { StyleSheet, Text, View, Overlay } from 'react-native';
 import { Dropdown } from 'react-native-material-dropdown';
 
 import Button from '../components/Button';
-import SelectedModal from '../components/SelectedModal';
 
 class Explore extends React.Component {
   constructor(props) {
@@ -13,8 +12,7 @@ class Explore extends React.Component {
     this.state = {
       isLoading: false,
       fontLoaded: false,
-      showMechanics: false,
-      showModal: false
+      showMechanics: false
     }
   }
   async componentDidMount() {
@@ -28,9 +26,12 @@ class Explore extends React.Component {
     }
   }
 
-  handleButton(type) {
+  handleButton(type, isSub) {
     this.setState({ selected: type, isLoading: true });
     this.fetchListData(type);
+    if(isSub) {
+      this.fetchListData(`Sub${type}`, true);
+    }
   }
 
   handleSelect(url) {
@@ -38,26 +39,31 @@ class Explore extends React.Component {
     this.fetchResultData(url);
   }
 
-  fetchListData(type){
+  fetchListData(type, isSub){
     fetch(`http://www.dnd5eapi.co/api/${type}/`)
       .then(response => response.json())
       .then(data => {
-        let list = this.formatData(data.results);
-        this.setState({list, isLoading: false});
+        if(isSub){
+          let sublist = this.formatData(data.results);
+          this.setState({sublist, isLoading: false});
+        } else {
+          let list = this.formatData(data.results);
+          this.setState({list, isLoading: false});
+        }
       });
   }
 
-  fetchResultData(url){
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        this.setState({result: data, isLoading: false, showModal: true});
-      });
-  }
+  // fetchResultData(url){
+  //   fetch(url)
+  //     .then(response => response.json())
+  //     .then(data => {
+  //       this.setState({result: data, isLoading: false, showModal: true});
+  //     });
+  // }
 
-  handleCloseModal(val){
-    this.setState({ showModal: false });
-  }
+  // handleCloseModal(val){
+  //   this.setState({ showModal: false });
+  // }
 
   formatData(data){
     let arr = [];
@@ -71,6 +77,7 @@ class Explore extends React.Component {
   }
 
   render() {
+    const { navigate } = this.props.navigation;
     if(this.state.isLoading){
       return (
         <View style={styles.container}>
@@ -80,33 +87,46 @@ class Explore extends React.Component {
         </View>
       )
     }
+    const selected = this.state.selected;
+    const isSub = selected && (selected === 'classes' || selected === 'races');
     return (
       <View style={styles.container}>
         {this.state.fontLoaded &&
           <Text style={{fontSize: 52, color: 'white', fontFamily: 'DnDC', textAlign: 'center'}}>What would you like to explore?</Text>
         }
         <View style={{flexDirection: 'row', flexWrap: 'wrap', maxWidth: 340}}>
-          <Button title="Character data" id="character-data" disabled={this.state.showCharacterData} handlePress={() => { this.setState({ selected: 'Character data', showCharacterData: !this.state.showCharacterData}) }}/>
-          <Button title="Classes" id="classes" disabled={this.state.selected === 'classes'} handlePress={() => { this.handleButton('classes') }}/>
-          {/* <Button title="Races" id="races" disabled={this.state.selected === 'races'} handlePress={() => { this.handleButton('races') }}/>
-          <Button title="Subraces" id="subraces" disabled={this.state.selected === 'subraces'} handlePress={() => { this.handleButton('subraces') }}/>
-          <Button title="Equipment" id="equipment" disabled={this.state.selected === 'equipment'} handlePress={() => { this.handleButton('equipment') }}/>
-          <Button title="Game Mechanics" id="mechanics" disabled={this.state.showMechanics} handlePress={() => { this.setState({ selected: 'Game mechanics', showMechanics: !this.state.showMechanics}) }}/>           */}
+          <Button title="Classes" id="classes" disabled={selected === 'classes'} handlePress={() => { this.handleButton('classes', true) }}/>                    
+          <Button title="Races" id="races" disabled={selected === 'races'} handlePress={() => { this.handleButton('races', true) }}/>
+          <Button title="Equipment" id="equipment" disabled={selected === 'equipment'} handlePress={() => { this.handleButton('equipment') }}/>
+          <Button title="Conditions" id="conditions" disabled={selected === 'conditions'} handlePress={() => { this.handleButton('conditions') }}/>
         </View>
-        {this.state.selected &&
+        {selected &&
           <Dropdown
-            label={this.state.selected.charAt(0).toUpperCase() + this.state.selected.slice(1)}
+            label={selected.charAt(0).toUpperCase() + selected.slice(1)}
             data={this.state.list}
+            containerStyle={styles.dropdown}
+            baseColor='white'
+            textColor='white'
+            selectedItemColor='black'
+            onChangeText={(value, id, data) => 
+              navigate('ExploreCard', { 
+                type: selected,
+                value: value
+              })
+            }
+          />
+        }
+        {/* {isSub &&
+          <Dropdown
+            label={`Sub${selected}`}
+            data={this.state.sublist}
             containerStyle={styles.dropdown}
             baseColor='white'
             textColor='white'
             selectedItemColor='black'
             onChangeText={(value) => this.handleSelect(value)}
           />
-        }
-        {this.state.result && this.state.showModal &&
-          <SelectedModal selectedType={this.state.selected} data={this.state.result} closeModal={() => { this.handleCloseModal() }} />
-        }
+        } */}
       </View>
     );
   }
@@ -116,7 +136,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,    
     alignItems: 'center',
-    justifyContent: 'center',
+    // justifyContent: 'center',
     backgroundColor: '#263238'
   },
   dropdown: {

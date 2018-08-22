@@ -7,6 +7,7 @@ import { createStackNavigator } from 'react-navigation';
 import Button from './components/Button';
 import RollDice from './Dice/RollDice';
 import Explore from './Explore/Explore';
+import ExploreCard from './Explore/ExploreCard';
 import Randomise from './Randomise/Randomise';
 import Test from './Test/Test';
 
@@ -57,6 +58,9 @@ const RootStack = createStackNavigator({
   },
   Explore: {
     screen: Explore
+  },
+  ExploreCard: {
+    screen: ExploreCard
   },
   Randomise: {
     screen: Randomise
