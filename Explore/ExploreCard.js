@@ -3,7 +3,7 @@ import { Font } from 'expo';
 import PropTypes from 'prop-types';
 import { Platform, StyleSheet, Text, View, TouchableNativeFeedback, TouchableOpacity, FlatList, ScrollView, Image } from 'react-native';
 
-import Button from '../components/Button';
+import LinkButton from '../components/LinkButton';
 import classes from '../components/classes';
 
 class ExploreCard extends React.Component {
@@ -38,6 +38,15 @@ class ExploreCard extends React.Component {
       });
   }
 
+  fetchAddition(url){
+    this.setState({additionalLoading: true});
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        this.setState({additional: data, additionalLoading: false});
+      });
+  }
+
   render() {
     let props = this.props.navigation.state.params;
     let data = this.state.result;
@@ -45,8 +54,9 @@ class ExploreCard extends React.Component {
     const Touchable = Platform.OS === 'android' ? TouchableNativeFeedback : TouchableOpacity;
     const font = Platform.OS === 'android' ? 'notoserif' : 'Avenir';
     const fontFam = this.state.fontLoaded ? 'LibreBaskerville-Regular' : font;
+    console.log(data);
     if(!this.state.isLoading && props && data){
-      imageUrl = classes[data.name].url;
+      imageUrl = classes[data.name];
     }
     if(this.state.isLoading){
       return (
@@ -61,13 +71,21 @@ class ExploreCard extends React.Component {
         <View style={styles.container}>
           <ScrollView>
             <Image
-              style={{height: 250, width: 250, position: 'relative', alignContent: 'center'}}
+              style={{height: 200, width: 'auto', flex: 1, alignSelf: 'stretch'}}
               source={imageUrl}
+              resizeMode='contain'
             />
             <Text style={[styles.headerText, {fontFamily: fontFam, marginTop: 10}]}>{data.name}</Text>
             {data.equipment_category && this.state.fontLoaded &&
               <Text style={[styles.paragraph, {fontFamily: fontFam, marginTop: 10}]}>{data.equipment_category}</Text>
             }
+            {/* {data.subclasses && data.subclasses.length &&
+              <View>
+                {data.subclasses.map((subclass) => {
+                  <LinkButton onPress={() => { this.fetchAddition(subclass.url);}} title={`View ${subclass.name}`} />
+                })}
+              </View>
+            } */}
             {data.hit_die && this.state.fontLoaded &&
               <Text style={[styles.paragraph, {fontFamily: fontFam, marginTop: 10}]}>Hit die: {data.hit_die}</Text>
             }
@@ -130,20 +148,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent'    
   },  
   headerText: {
-    fontSize: 36,
+    fontSize: 28,
     color: '#263238',
     textAlign: 'center'
   },
   subheaderText: {
-    fontSize: 28,
-    color: '#263238',
-  },
-  paragraph: {
     fontSize: 24,
     color: '#263238',
   },
-  list: {
+  paragraph: {
     fontSize: 18,
+    color: '#263238',
+  },
+  list: {
+    fontSize: 16,
     margin: 10,
     color: '#263238',
   }
