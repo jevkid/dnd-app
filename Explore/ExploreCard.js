@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import { Font } from 'expo';
 import PropTypes from 'prop-types';
-import { Platform, StyleSheet, Text, View, TouchableNativeFeedback, TouchableOpacity, FlatList, ScrollView, Image } from 'react-native';
+import { Platform, StyleSheet, Text, Linking, View, TouchableNativeFeedback, TouchableOpacity, FlatList, ScrollView, Image } from 'react-native';
 
 import LinkButton from '../components/LinkButton';
+import ClassCard from './ClassCard';
+import RaceCard from './RaceCard';
+
 import classes from '../components/classes';
 
 class ExploreCard extends React.Component {
@@ -19,7 +22,8 @@ class ExploreCard extends React.Component {
   async componentDidMount() {
     try {
       await Font.loadAsync({
-        'LibreBaskerville-Regular': require('../assets/fonts/LibreBaskerville-Regular.otf')
+        'FrancoisOne-Regular': require('../assets/fonts/FrancoisOne-Regular.ttf'),
+        'Montserrat-Light': require('../assets/fonts/Montserrat-Light.ttf')
       });
       this.setState({ fontLoaded: true });
     } catch (error) {
@@ -28,13 +32,14 @@ class ExploreCard extends React.Component {
     this.fetchResultData();
   }
 
-  fetchResultData(){
+  fetchResultData(val){
     let props = this.props.navigation.state.params
-    let url = props.value;
+    let url = val ? val : props.value;
     fetch(url)
       .then(response => response.json())
       .then(data => {
         this.setState({result: data, isLoading: false});
+        console.log(data);
       });
   }
 
@@ -48,21 +53,20 @@ class ExploreCard extends React.Component {
   }
 
   render() {
+    const { navigate } = this.props.navigation;
     let props = this.props.navigation.state.params;
     let data = this.state.result;
-    let imageUrl;
-    const Touchable = Platform.OS === 'android' ? TouchableNativeFeedback : TouchableOpacity;
+    // let imageUrl;
     const font = Platform.OS === 'android' ? 'notoserif' : 'Avenir';
-    const fontFam = this.state.fontLoaded ? 'LibreBaskerville-Regular' : font;
-    console.log(data);
-    if(!this.state.isLoading && props && data){
-      imageUrl = classes[data.name];
-    }
+    const fontFam = this.state.fontLoaded ? 'FrancoisOne-Regular' : font;
+    // if(!this.state.isLoading && props && data){
+    //   imageUrl = classes[data.name];
+    // }
     if(this.state.isLoading){
       return (
         <View style={styles.container}>
           {this.state.fontLoaded &&
-            <Text style={{fontSize: 52, color: '#263238', fontFamily: 'DnDC', textAlign: 'center'}}>Loading...</Text>
+            <Text style={{fontSize: 52, color: '#263238', fontFamily: 'FrancoisOne-Regular', textAlign: 'center'}}>Loading...</Text>
           }
         </View>
       )
@@ -70,49 +74,17 @@ class ExploreCard extends React.Component {
     return (
         <View style={styles.container}>
           <ScrollView>
-            <Image
+            {/* <Image
               style={{height: 200, width: 'auto', flex: 1, alignSelf: 'stretch'}}
               source={imageUrl}
               resizeMode='contain'
-            />
+            /> */}
             <Text style={[styles.headerText, {fontFamily: fontFam, marginTop: 10}]}>{data.name}</Text>
-            {data.equipment_category && this.state.fontLoaded &&
-              <Text style={[styles.paragraph, {fontFamily: fontFam, marginTop: 10}]}>{data.equipment_category}</Text>
+            {props.type === 'classes' &&
+              <ClassCard data={data} navigate={this.props.navigation} />
             }
-            {/* {data.subclasses && data.subclasses.length &&
-              <View>
-                {data.subclasses.map((subclass) => {
-                  <LinkButton onPress={() => { this.fetchAddition(subclass.url);}} title={`View ${subclass.name}`} />
-                })}
-              </View>
-            } */}
-            {data.hit_die && this.state.fontLoaded &&
-              <Text style={[styles.paragraph, {fontFamily: fontFam, marginTop: 10}]}>Hit die: {data.hit_die}</Text>
-            }
-            {data.proficiencies && this.state.fontLoaded &&
-              <View>
-                <Text style={[styles.subheaderText, {fontFamily: fontFam, marginTop: 10}]}>Proficiencies</Text>
-                <FlatList
-                  data={data.proficiencies}
-                  renderItem={({item}) => <Text key={item.name} style={styles.list}>&#9672;  {item.name}</Text>}
-                />
-              </View>
-            }
-            {data.proficiency_choices &&
-              <View>
-                {data.proficiency_choices.map((option, index) => {
-                  return (
-                    <View key={index}>
-                      <Text style={[styles.subheaderText, {fontFamily: fontFam, marginTop: 10}]}>Proficiency choices (Choose {option.choose})</Text>
-                      <FlatList
-                        data={option.from}
-                        key={option.from}
-                        renderItem={({item}) => <Text key={item.name} style={styles.list}>&#9672;  {item.name}</Text>}
-                      />
-                    </View>
-                  );
-                })}
-              </View>
+            {props.type === 'races' &&
+              <RaceCard data={data} navigate={this.props.navigation} />
             }
           </ScrollView>
         </View>
@@ -129,7 +101,6 @@ ExploreCard.propTypes = {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    // position: 'absolute',
     backgroundColor: '#fffaef',
     width: '95%',
     minHeight: 500,
@@ -137,7 +108,7 @@ const styles = StyleSheet.create({
     borderRadius: 4
   },
   container: {
-    backgroundColor: '#fffaef',
+    backgroundColor: '#464B8A',
     borderRadius: 4,
     padding: 10,
     height: '100%',
@@ -149,21 +120,23 @@ const styles = StyleSheet.create({
   },  
   headerText: {
     fontSize: 28,
-    color: '#263238',
+    color: '#ffffff',
     textAlign: 'center'
   },
   subheaderText: {
     fontSize: 24,
-    color: '#263238',
+    color: '#ffffff',
   },
   paragraph: {
     fontSize: 18,
-    color: '#263238',
+    color: '#ffffff',
   },
   list: {
     fontSize: 16,
     margin: 10,
-    color: '#263238',
+    color: '#ffffff',
+    display: 'flex',
+    textDecorationLine: 'underline'
   }
 
 });
