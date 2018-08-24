@@ -87,7 +87,7 @@ class Explore extends React.Component {
           <View style={{flexDirection: 'row', flexWrap: 'wrap', maxWidth: 340}}>
             <Button title="classes" id="classes" buttonStyle={styles.button} disabledStyle={styles.disabled} textStyle={styles.text} gradient={true} colors={['#523E7B', '#464B8A', '#365a84']} disabled={selected === 'classes'} handlePress={() => { this.handleButton('classes', true) }}/>                    
             <Button title="races" id="races" buttonStyle={styles.button} disabledStyle={styles.disabled} textStyle={styles.text} gradient={true} colors={['#523E7B', '#464B8A', '#365a84']} disabled={selected === 'races'} handlePress={() => { this.handleButton('races', true) }}/>
-            <Button title="equipment" id="equipment" buttonStyle={styles.button} disabledStyle={styles.disabled} textStyle={styles.text} gradient={true} colors={['#523E7B', '#464B8A', '#365a84']} disabled={selected === 'equipment'} handlePress={() => { this.handleButton('equipment') }}/>
+            <Button title="equip" id="equipment" buttonStyle={styles.button} disabledStyle={styles.disabled} textStyle={styles.text} gradient={true} colors={['#523E7B', '#464B8A', '#365a84']} disabled={selected === 'equipment'} handlePress={() => { this.handleButton('equipment') }}/>
             <Button title="conditions" id="conditions" buttonStyle={styles.button} disabledStyle={styles.disabled} textStyle={styles.text} gradient={true} colors={['#523E7B', '#464B8A', '#365a84']} disabled={selected === 'conditions'} handlePress={() => { this.handleButton('conditions') }}/>
           </View>
           {this.state.fontLoaded &&
@@ -116,7 +116,7 @@ class Explore extends React.Component {
         <View style={{flexDirection: 'row', flexWrap: 'wrap', maxWidth: 340}}>
           <Button title="classes" id="classes" buttonStyle={styles.button} disabledStyle={styles.disabled} textStyle={styles.text} gradient={true} colors={['#523E7B', '#464B8A', '#365a84']} disabled={selected === 'classes'} handlePress={() => { this.handleButton('classes', true) }}/>                    
           <Button title="races" id="races" buttonStyle={styles.button} disabledStyle={styles.disabled} textStyle={styles.text} gradient={true} colors={['#523E7B', '#464B8A', '#365a84']} disabled={selected === 'races'} handlePress={() => { this.handleButton('races', true) }}/>
-          <Button title="equipment" id="equipment" buttonStyle={styles.button} disabledStyle={styles.disabled} textStyle={styles.text} gradient={true} colors={['#523E7B', '#464B8A', '#365a84']} disabled={selected === 'equipment'} handlePress={() => { this.handleButton('equipment') }}/>
+          <Button title="equip" id="equipment" buttonStyle={styles.button} disabledStyle={styles.disabled} textStyle={styles.text} gradient={true} colors={['#523E7B', '#464B8A', '#365a84']} disabled={selected === 'equipment'} handlePress={() => { this.handleButton('equipment') }}/>
           <Button title="conditions" id="conditions" buttonStyle={styles.button} disabledStyle={styles.disabled} textStyle={styles.text} gradient={true} colors={['#523E7B', '#464B8A', '#365a84']} disabled={selected === 'conditions'} handlePress={() => { this.handleButton('conditions') }}/>
         </View>
         {selected &&
@@ -176,8 +176,8 @@ const styles = StyleSheet.create({
     padding: 0
   },
   button: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     borderRadius: 0,
     marginVertical: 25,
     marginRight: 5,

@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Font } from 'expo';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, View, FlatList, ScrollView } from 'react-native';
+import { Platform, StyleSheet, Text, View, FlatList, ScrollView, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
+
+import { FontAwesome } from '@expo/vector-icons';
 
 import ChoicesList from '../components/ChoicesList';
 
@@ -25,59 +27,149 @@ export default class RaceCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      fontLoaded: false
+      fontLoaded: false,
+      showDetails: false,
+      showSubrace: false,
+      showAlignment: false,
+      showSpeed: false,
+      showLanguage: false,
+      showSize: false,
+      showProficiences: false,
+      showTraits: false,
+      showBonuses: false
     }
   }
 
   async componentDidMount() {
     try {
       await Font.loadAsync({
-        'Montserrat-Light': require('../assets/fonts/Montserrat-Light.ttf')
+        'Montserrat-Light': require('../assets/fonts/Montserrat-Light.ttf'),
+        'Montserrat-Medium': require('../assets/fonts/Montserrat-Medium.ttf')
       });
       this.setState({ fontLoaded: true });
     } catch (error) {
       console.log(error);
     }
   }
+
+  toggleState(val, bool){
+    const state = this.state[val];
+    this.setState({ [val]: !bool });
+  }
+
+  convertToObj(bonuses){
+    const list = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'];
+    let abilityBonuses = [];
+    bonuses.map((bonus, index) => {
+      abilityBonuses.push({
+        name: `${list[index]} +${bonus}`
+      });
+    });
+  
+    return abilityBonuses;
+  }
   render() {
     const data = this.props.data;
+    let bonuses = this.convertToObj(data.ability_bonuses);
+    const state = this.state;
     const { navigate } = this.props.navigate;    
+    const Touchable = Platform.OS === 'android' ? TouchableNativeFeedback : TouchableOpacity;
     const fontFam = this.props.font ? this.props.font : 'FrancoisOne-Regular';
     return (
       <View>
-        {data.age &&
-          <View>
-            <Text style={[styles.subheaderText, {fontFamily: fontFam, marginTop: 10}]}>Age</Text>
-            <Text style={[styles.paragraph, {marginTop: 10}]}>{data.age}</Text>
-          </View>
-        }
+        <View>
+          <Touchable
+            onPress={() => { this.toggleState('showDetails', state.showDetails); }}
+          >
+            <View style={{flexDirection: 'row'}}>
+              <FontAwesome name={state.showDetails ? 'caret-down' : 'caret-right'} size={25} style={{ color: 'white', marginRight: 5, marginTop: 5 }} />
+              <Text style={[styles.subheaderText, {fontFamily: fontFam}]}>Details</Text>
+            </View>
+          </Touchable>
+          {state.showDetails &&
+            <View>
+              <View style={{flexDirection: 'row', marginTop: 10}}>
+                <Text style={[styles.paragraphBold]}>Speed:</Text>
+                <Text style={[styles.paragraph]}>{data.speed}</Text>
+              </View>
+              <View style={{flexDirection: 'row', marginTop: 10}}>
+                <Text style={styles.paragraphBold}>Size:</Text>
+                <Text style={[styles.paragraph]}>{data.size}</Text>
+              </View>
+              <Text style={[styles.paragraph]}>{data.size_description}</Text>
+              <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 10}}>
+                <Text style={styles.paragraphBold}>Age:</Text>
+                <Text style={[styles.paragraph]}>{data.age}</Text>
+              </View>
+              <Text style={[styles.paragraph]}>{data.age_description}</Text>
+              <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 10}}>
+                <Text style={styles.paragraphBold}>Alignment:</Text>
+                <Text style={[styles.paragraph]}>{data.alignment}</Text>
+              </View>
+            </View>
+          }
+        </View>
         {data.subraces &&
           <View>
-            <Text style={[styles.subheaderText, {fontFamily: fontFam, marginTop: 10}]}>Subraces</Text>
-            <ChoicesList type='subraces' data={data.subraces} navigate={navigate} />
+            <Touchable
+              onPress={() => { this.toggleState('showSubrace', state.showSubrace); }}
+            >
+              <View style={{flexDirection: 'row'}}>
+                <FontAwesome name={state.showSubrace ? 'caret-down' : 'caret-right'} size={25} style={{ color: 'white', marginRight: 5, marginTop: 5 }} />
+                <Text style={[styles.subheaderText, {fontFamily: fontFam}]}>Subraces</Text>
+              </View>
+            </Touchable>
+            {state.showSubrace &&
+              <ChoicesList type='subraces' data={data.subraces} navigate={navigate} />
+            }
           </View>
         }
-        {data.alignment &&
+        {data.starting_proficiencies &&
           <View>
-            <Text style={[styles.subheaderText, {fontFamily: fontFam, marginTop: 10}]}>Alignment</Text>
-            <Text style={[styles.paragraph, {marginTop: 10}]}>{data.alignment}</Text>
+            <Touchable
+              onPress={() => { this.toggleState('showProficiencies', state.showProficiencies); }}
+            >
+              <View style={{flexDirection: 'row'}}>
+                <FontAwesome name={state.showProficiencies ? 'caret-down' : 'caret-right'} size={25} style={{ color: 'white', marginRight: 5, marginTop: 5 }} />
+                <Text style={[styles.subheaderText, {fontFamily: fontFam}]}>Starting proficiences</Text>
+              </View>
+            </Touchable>
+            {state.showProficiencies &&
+              <ChoicesList type='starting-proficiencies' data={data.starting_proficiencies} navigate={navigate} />
+            }
           </View>
         }
-        {data.speed &&
-          <Text style={[styles.subheaderText, {fontFamily: fontFam, marginTop: 10}]}>Speed: {data.speed}</Text>
-        }
+        {data.traits &&
+          <View>
+            <Touchable
+              onPress={() => { this.toggleState('showTraits', state.showTraits); }}
+            >
+              <View style={{flexDirection: 'row'}}>
+                <FontAwesome name={state.showTraits ? 'caret-down' : 'caret-right'} size={25} style={{ color: 'white', marginRight: 5, marginTop: 5 }} />
+                <Text style={[styles.subheaderText, {fontFamily: fontFam}]}>Traits</Text>
+              </View>
+            </Touchable>
+            {state.showTraits &&
+              <ChoicesList type='traits' data={data.traits} navigate={navigate} />
+            }
+          </View>
+        }       
         {data.languages &&
           <View>
-            <Text style={[styles.subheaderText, {fontFamily: fontFam, marginTop: 10}]}>Languages</Text>
-            <ChoicesList type='languages' data={data.languages} navigate={navigate} />              
-            <Text style={[styles.paragraph, { marginTop: 10}]}>{data.language_desc}</Text>
-          </View>
-        }
-        {data.size &&
-          <View>
-            <Text style={[styles.subheaderText, {fontFamily: fontFam, marginTop: 10}]}>Size</Text>
-            <Text style={[styles.paragraph, {marginTop: 10}]}>{data.size}</Text>
-            <Text style={[styles.paragraph, {marginTop: 10}]}>{data.size_description}</Text>
+            <Touchable
+              onPress={() => { this.toggleState('showLanguage', state.showLanguage); }}
+            >
+              <View style={{flexDirection: 'row'}}>
+                <FontAwesome name={state.showLanguage ? 'caret-down' : 'caret-right'} size={25} style={{ color: 'white', marginRight: 5, marginTop: 5 }} />
+                <Text style={[styles.subheaderText, {fontFamily: fontFam}]}>Languages</Text>
+              </View>
+            </Touchable>
+            {state.showLanguage &&
+              <View>
+                <ChoicesList type='languages' data={data.languages} navigate={navigate} />
+                <Text style={[styles.paragraph, { marginTop: 10}]}>{data.language_desc}</Text>
+              </View>
+            }
           </View>
         }
         {data.saving_throws &&
@@ -86,13 +178,29 @@ export default class RaceCard extends React.Component {
         {data.proficiencies &&
           <ChoicesList type='proficiency' header='Proficiencies' data={data.proficiencies} navigate={navigate} />              
         }
-        {data.proficiency_choices &&
+        {data.ability_bonuses &&
           <View>
-            {data.proficiency_choices.map((option, index) => {
-              return (
-                <ChoicesList key={index} type='proficiency-choice' header={`Proficiency choices (Choose ${option.choose})`} data={option.from} navigate={navigate}/>
-              );
-            })}
+            <Touchable
+              onPress={() => { this.toggleState('showBonuses', state.showBonuses); }}
+            >
+              <View style={{flexDirection: 'row'}}>
+                <FontAwesome name={state.showBonuses ? 'caret-down' : 'caret-right'} size={25} style={{ color: 'white', marginRight: 5, marginTop: 5 }} />
+                <Text style={[styles.subheaderText, {fontFamily: fontFam}]}>Ability bonuses</Text>
+              </View>
+            </Touchable>
+            {state.showBonuses &&
+              <FlatList
+                data={bonuses}
+                renderItem={({item}) => 
+                  <Text
+                    key={item.name}
+                    style={styles.list}                    
+                  >
+                    {item.name}
+                  </Text>
+                }
+              />
+            }
           </View>
         }
       </View>
@@ -109,6 +217,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#ffffff',
   },
+  paragraphBold: {
+    fontSize: 18,
+    marginRight: 5,
+    color: '#ffffff',
+    fontFamily: 'Montserrat-Medium'
+  },
   paragraph: {
     fontSize: 18,
     color: '#ffffff',
@@ -117,11 +231,9 @@ const styles = StyleSheet.create({
   },
   list: {
     fontSize: 16,
-    margin: 10,
     color: '#ffffff',
     display: 'flex',
-    fontFamily: 'Montserrat-Light',
-    textDecorationLine: 'underline'
+    fontFamily: 'Montserrat-Light'    
   }
 
 });

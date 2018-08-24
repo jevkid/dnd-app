@@ -9,7 +9,9 @@ export default class ChoicesList extends React.Component {
     const fontFam = this.props.font ? this.props.font : 'FrancoisOne-Regular';
     return (
       <View>
-        <Text style={[styles.subheaderText, {fontFamily: fontFam, marginTop: 10}]}>{this.props.header}</Text>
+        {this.props.header &&
+          <Text style={[styles.subheaderText, {fontFamily: fontFam, marginTop: 10}]}>{this.props.header}</Text>
+        }
         <FlatList
           data={this.props.data}
           renderItem={({item}) => 
@@ -43,11 +45,10 @@ const styles = StyleSheet.create({
   },
   list: {
     fontSize: 16,
-    margin: 10,
+    margin: 5,
     color: '#ffffff',
     display: 'flex',
     fontFamily: 'Montserrat-Light',
     textDecorationLine: 'underline'
   }
-
 });

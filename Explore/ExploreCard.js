@@ -6,6 +6,9 @@ import { Platform, StyleSheet, Text, Linking, View, TouchableNativeFeedback, Tou
 import LinkButton from '../components/LinkButton';
 import ClassCard from './ClassCard';
 import RaceCard from './RaceCard';
+import EquipCard from './EquipCard';
+
+import { FontAwesome } from '@expo/vector-icons';
 
 import classes from '../components/classes';
 
@@ -23,7 +26,8 @@ class ExploreCard extends React.Component {
     try {
       await Font.loadAsync({
         'FrancoisOne-Regular': require('../assets/fonts/FrancoisOne-Regular.ttf'),
-        'Montserrat-Light': require('../assets/fonts/Montserrat-Light.ttf')
+        'Montserrat-Light': require('../assets/fonts/Montserrat-Light.ttf'),
+        'Montserrat-Medium': require('../assets/fonts/Montserrat-Medium.ttf')
       });
       this.setState({ fontLoaded: true });
     } catch (error) {
@@ -32,13 +36,15 @@ class ExploreCard extends React.Component {
     this.fetchResultData();
   }
 
-  fetchResultData(val){
+  fetchResultData(type, val){
+    this.setState({isLoading: true});
     let props = this.props.navigation.state.params
     let url = val ? val : props.value;
+    let selectedType = selectedType ? type : props.type
     fetch(url)
       .then(response => response.json())
       .then(data => {
-        this.setState({result: data, isLoading: false});
+        this.setState({selectedType, result: data, isLoading: false});
         console.log(data);
       });
   }
@@ -56,13 +62,17 @@ class ExploreCard extends React.Component {
     const { navigate } = this.props.navigation;
     let props = this.props.navigation.state.params;
     let data = this.state.result;
+    let type = this.state.selectedType ? this.state.selectedType : props.type;
     // let imageUrl;
     const font = Platform.OS === 'android' ? 'notoserif' : 'Avenir';
     const fontFam = this.state.fontLoaded ? 'FrancoisOne-Regular' : font;
     // if(!this.state.isLoading && props && data){
     //   imageUrl = classes[data.name];
     // }
-    if(this.state.isLoading){
+    let baseUrl = `http://www.dnd5eapi.co/api/${props.type}`;
+
+    const Touchable = Platform.OS === 'android' ? TouchableNativeFeedback : TouchableOpacity;
+    if(this.state.isLoading || !data){
       return (
         <View style={styles.container}>
           {this.state.fontLoaded &&
@@ -79,12 +89,31 @@ class ExploreCard extends React.Component {
               source={imageUrl}
               resizeMode='contain'
             /> */}
-            <Text style={[styles.headerText, {fontFamily: fontFam, marginTop: 10}]}>{data.name}</Text>
-            {props.type === 'classes' &&
+            <View>
+              <Touchable
+                onPress={() => {
+                  this.fetchResultData(type, `${baseUrl}/${data.index - 1}`);
+                }}>
+                <FontAwesome name='caret-left' size={25} style={{ color: 'white', marginRight: 5, marginTop: 5 }} />
+              </Touchable>
+              <Touchable
+                onPress={() => {
+                  this.fetchResultData(type, `${baseUrl}/${data.index + 1}`);
+                }}>
+                <FontAwesome name='caret-right' size={25} style={{ color: 'white', marginRight: 5, marginTop: 5 }} />
+              </Touchable>
+              {data.name &&
+                <Text style={[styles.headerText, {fontFamily: fontFam, marginTop: 10}]}>{data.name}</Text>
+              }
+            </View>
+            {type === 'classes' &&
               <ClassCard data={data} navigate={this.props.navigation} />
             }
-            {props.type === 'races' &&
+            {type === 'races' &&
               <RaceCard data={data} navigate={this.props.navigation} />
+            }
+            {type === 'equipment' &&
+              <EquipCard data={data} navigate={this.props.navigation} />
             }
           </ScrollView>
         </View>
@@ -119,7 +148,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent'    
   },  
   headerText: {
-    fontSize: 28,
+    fontSize: 32,
     color: '#ffffff',
     textAlign: 'center'
   },
